@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav class="sidebar">
+    <h2>👤 Profile</h2>
+    <ul>
+      <li><a href="organizer.html">📊 Dashboard</a></li>
+      <li><a href="profile.html" class="active">👤 Profile</a></li>
+      <li><a href="settings.html">⚙️ Settings</a></li>
+      <li><a href="#" onclick="logout()">🚪 Logout</a></li>
+    </ul>
+  </nav>
+
+  <main class="content">
+    <header>
+      <h1>My Profile</h1>
+    </header>
+
+    <section class="form-section">
+      <form id="profileForm">
+        <label>Full Name</label>
+        <input type="text" id="name" required>
+
+        <label>Email</label>
+        <input type="email" id="email" required disabled>
+
+        <label>Role</label>
+        <input type="text" id="role" disabled>
+
+        <button type="submit">Update Profile</button>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    let user = JSON.parse(localStorage.getItem("currentUser"));
+    if(!user){ window.location.href="login.html"; }
+
+    // Load profile data
+    document.getElementById("name").value = user.name;
+    document.getElementById("email").value = user.email;
+    document.getElementById("role").value = user.role;
+
+    document.getElementById("profileForm").addEventListener("submit", e => {
+      e.preventDefault();
+
+      // Update current user
+      user.name = document.getElementById("name").value;
+      localStorage.setItem("currentUser", JSON.stringify(user));
+
+      // Update in "users" list
+      let users = JSON.parse(localStorage.getItem("users")) || [];
+      users = users.map(u => u.email === user.email ? user : u);
+      localStorage.setItem("users", JSON.stringify(users));
+
+      alert("✅ Profile updated successfully!");
+    });
+
+    function logout(){
+      localStorage.removeItem("currentUser");
+      window.location.href="login.html";
+    }
+  </script>
+</body>
+</html>

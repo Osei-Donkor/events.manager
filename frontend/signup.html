@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up - Online Event System</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .password-container {
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+
+    .password-container input {
+      flex: 1;
+      padding-right: 40px;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 10px;
+      cursor: pointer;
+      font-size: 1.2rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h2>Create an Account</h2>
+    <form id="signupForm">
+      <input type="text" id="signupUsername" placeholder="Username" required>
+      <input type="email" id="signupEmail" placeholder="Email" required>
+
+      <div class="password-container">
+        <input type="password" id="signupPassword" placeholder="Password" required>
+        <span class="toggle-password" onclick="togglePassword('signupPassword', this)">🙈</span>
+      </div>
+
+      <select id="signupRole" required>
+        <option value="attendee">Attendee</option>
+        <option value="organizer">Organizer</option>
+      </select>
+      <button type="submit">Sign Up</button>
+    </form>
+    <p>Already have an account? <a href="login.html">Login here</a></p>
+  </div>
+
+  <script>
+    function togglePassword(inputId, toggleElement) {
+      const input = document.getElementById(inputId);
+      if (input.type === "password") {
+        input.type = "text";
+        toggleElement.textContent = "🙉"; 
+      } else {
+        input.type = "password";
+        toggleElement.textContent = "🙈"; 
+      }
+    }
+  </script>
+
+  <!-- ✅ Link your JS file here -->
+  <script src="script.js"></script>
+</body>
+</html>

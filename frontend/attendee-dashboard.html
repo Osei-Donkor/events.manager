@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendee Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #ff9a9e, #fad0c4);
+      --text-color: #333;
+      --card-bg: #fff;
+      --nav-bg: rgba(255, 255, 255, 0.15);
+      --button-bg: #ff4757;
+      --button-hover: #ff6b81;
+    }
+
+    body.dark-mode {
+      --bg-gradient: linear-gradient(135deg, #1f1c2c, #928dab);
+      --text-color: #f1f1f1;
+      --card-bg: #2a2a3c;
+      --nav-bg: rgba(0, 0, 0, 0.6);
+      --button-bg: #6a11cb;
+      --button-hover: #2575fc;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg-gradient);
+      margin: 0;
+      padding: 0;
+      color: var(--text-color);
+      transition: background 0.5s ease, color 0.5s ease;
+    }
+
+    nav {
+      background: var(--nav-bg);
+      backdrop-filter: blur(12px);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #fff;
+      flex-wrap: wrap;
+      position: relative;
+    }
+
+    nav h1 { font-size: 1.8rem; margin: 0; }
+    .greeting { font-size: 1rem; font-weight: bold; margin-top: .2rem; }
+
+    nav .menu-btn {
+      display: none;
+      font-size: 1.8rem;
+      background: none;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    nav .menu { display: flex; gap: 1rem; }
+
+    nav button {
+      padding: 0.5rem 1.2rem;
+      border: none;
+      border-radius: 8px;
+      background: var(--button-bg);
+      color: #fff;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    nav button:hover {
+      background: var(--button-hover);
+      transform: scale(1.05);
+    }
+
+    main {
+      padding: 2rem;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+    }
+
+    section, aside, .page {
+      background: var(--card-bg);
+      padding: 1.5rem;
+      border-radius: 15px;
+      box-shadow: 0px 6px 20px rgba(0,0,0,0.1);
+      animation: fadeIn 0.6s ease-in-out;
+      transition: background 0.5s ease;
+    }
+
+    section h2, aside h2, .page h2 {
+      margin-bottom: 1rem;
+      color: var(--button-bg);
+    }
+
+    .event-card {
+      padding: 1.5rem;
+      border-radius: 15px;
+      margin-bottom: 1.5rem;
+      background: var(--card-bg);
+      transition: 0.3s;
+    }
+
+    .event-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0px 8px 25px rgba(0,0,0,0.2);
+    }
+
+    .event-card h3 { margin: 0; color: #2575fc; }
+
+    .event-card button {
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 8px;
+      background: #2575fc;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .event-card button:hover { background: #6a11cb; transform: scale(1.05); }
+
+    .registered-events ul { list-style: none; padding: 0; }
+    .registered-events li {
+      background: #f5f5f5;
+      padding: 0.8rem;
+      margin-bottom: 0.8rem;
+      border-radius: 8px;
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .back-btn {
+      margin-top: 1rem;
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 8px;
+      background: #333;
+      color: #fff;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .back-btn:hover { background: #555; transform: scale(1.05); }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 1024px) { main { grid-template-columns: 1fr; } }
+    @media (max-width: 768px) {
+      nav .menu { display: none; flex-direction: column; background: rgba(0,0,0,0.9); position: absolute; top: 60px; right: 20px; padding: 1rem; border-radius: 10px; width: 200px; }
+      nav .menu.active { display: flex; }
+      nav .menu button { width: 100%; margin-bottom: 0.5rem; }
+      nav .menu-btn { display: block; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div>
+      <h1>🎟️ Attendee Dashboard</h1>
+      <div class="greeting" id="greeting"></div>
+    </div>
+    <button class="menu-btn" onclick="toggleMenu()">☰</button>
+    <div class="menu">
+      <button onclick="openPage('profilePage')">👤 My Profile</button>
+      <button onclick="openPage('settingsPage')">⚙️ Settings</button>
+      <button onclick="logout()">🚪 Logout</button>
+    </div>
+  </nav>
+
+  <main>
+    <section id="eventsPage" class="page active">
+      <h2>Available Events</h2>
+      <div id="eventsContainer"></div>
+    </section>
+
+    <aside class="registered-events" id="registeredPage">
+      <h2>My Registered Events</h2>
+      <ul id="registeredList"></ul>
+    </aside>
+
+    <section id="profilePage" class="page">
+      <h2>👤 My Profile</h2>
+      <p><strong>Name:</strong> <span id="profileName">-</span></p>
+      <p><strong>Email:</strong> <span id="profileEmail">-</span></p>
+      <p><strong>Role:</strong> <span id="profileRole">Attendee</span></p>
+      <button class="back-btn" onclick="openPage('eventsPage')">🔙 Back</button>
+    </section>
+
+    <section id="settingsPage" class="page">
+      <h2>⚙️ Settings</h2>
+      <label><input type="checkbox" id="darkModeToggle"> 🌙 Enable Dark Mode</label>
+      <br><br>
+      <label><input type="checkbox"> 🔔 Enable Notifications</label>
+      <br><br>
+      <button class="back-btn" onclick="openPage('eventsPage')">🔙 Back</button>
+    </section>
+  </main>
+
+  <script>
+    function logout() {
+      localStorage.removeItem("currentUser");
+      window.location.href = "login.html";
+    }
+
+    function registerEvent(eventName) {
+      const list = document.getElementById("registeredList");
+      const li = document.createElement("li");
+      li.textContent = eventName + " ✅";
+      list.appendChild(li);
+
+      let regs = JSON.parse(localStorage.getItem("registeredEvents")) || [];
+      regs.push(eventName);
+      localStorage.setItem("registeredEvents", JSON.stringify(regs));
+
+      alert("You have successfully registered for " + eventName);
+    }
+
+    function toggleMenu() {
+      document.querySelector(".menu").classList.toggle("active");
+    }
+
+    function openPage(pageId) {
+      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+      document.getElementById(pageId).classList.add("active");
+      document.querySelector(".menu").classList.remove("active");
+    }
+
+    const darkModeToggle = document.getElementById("darkModeToggle");
+    if (localStorage.getItem("darkMode") === "enabled") {
+      document.body.classList.add("dark-mode");
+      darkModeToggle.checked = true;
+    }
+
+    darkModeToggle.addEventListener("change", () => {
+      if (darkModeToggle.checked) {
+        document.body.classList.add("dark-mode");
+        localStorage.setItem("darkMode", "enabled");
+      } else {
+        document.body.classList.remove("dark-mode");
+        localStorage.setItem("darkMode", "disabled");
+      }
+    });
+
+    function setGreeting() {
+      const user = JSON.parse(localStorage.getItem("currentUser"));
+      if (!user) return;
+      document.getElementById("greeting").textContent =
+        `Welcome back, ${user.username} (${user.role.charAt(0).toUpperCase() + user.role.slice(1)}) 🎉`;
+      document.getElementById("profileName").textContent = user.username;
+      document.getElementById("profileRole").textContent = user.role;
+    }
+
+    function loadEvents() {
+      const eventsContainer = document.getElementById("eventsContainer");
+      eventsContainer.innerHTML = "";
+      const savedEvents = JSON.parse(localStorage.getItem("organizerEvents")) || [];
+
+      if (savedEvents.length === 0) {
+        eventsContainer.innerHTML = "<p>No events available yet.</p>";
+        return;
+      }
+
+      savedEvents.forEach(ev => {
+        const card = document.createElement("div");
+        card.className = "event-card";
+        card.innerHTML = `
+          <h3>${ev.name}</h3>
+          <p><strong>Date:</strong> ${ev.date}</p>
+          <p>${ev.desc}</p>
+          <button onclick="registerEvent('${ev.name}')">Register</button>
+        `;
+        eventsContainer.appendChild(card);
+      });
+
+      const regs = JSON.parse(localStorage.getItem("registeredEvents")) || [];
+      const list = document.getElementById("registeredList");
+      list.innerHTML = "";
+      regs.forEach(r => {
+        const li = document.createElement("li");
+        li.textContent = r + " ✅";
+        list.appendChild(li);
+      });
+    }
+
+    window.onload = () => {
+      setGreeting();
+      loadEvents();
+    };
+  </script>
+</body>
+</html>

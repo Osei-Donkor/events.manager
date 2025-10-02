@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav class="sidebar">
+    <h2>⚙️ Settings</h2>
+    <ul>
+      <li><a href="organizer.html">📊 Dashboard</a></li>
+      <li><a href="profile.html">👤 Profile</a></li>
+      <li><a href="settings.html" class="active">⚙️ Settings</a></li>
+      <li><a href="#" onclick="logout()">🚪 Logout</a></li>
+    </ul>
+  </nav>
+
+  <main class="content">
+    <header>
+      <h1>Settings</h1>
+    </header>
+
+    <section class="form-section">
+      <form id="settingsForm">
+        <label>Change Password</label>
+        <input type="password" id="newPassword" placeholder="New Password" required>
+
+        <button type="submit">Update Password</button>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    let user = JSON.parse(localStorage.getItem("currentUser"));
+    if(!user){ window.location.href="login.html"; }
+
+    document.getElementById("settingsForm").addEventListener("submit", e => {
+      e.preventDefault();
+      const newPassword = document.getElementById("newPassword").value;
+
+      // Update password in user object
+      user.password = newPassword;
+      localStorage.setItem("currentUser", JSON.stringify(user));
+
+      // Update in "users" list
+      let users = JSON.parse(localStorage.getItem("users")) || [];
+      users = users.map(u => u.email === user.email ? user : u);
+      localStorage.setItem("users", JSON.stringify(users));
+
+      alert("✅ Password updated successfully!");
+      document.getElementById("newPassword").value = "";
+    });
+
+    function logout(){
+      localStorage.removeItem("currentUser");
+      window.location.href="login.html";
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organizer Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #6a11cb, #2575fc);
+      --text-color: #333;
+      --card-bg: #fff;
+      --nav-bg: rgba(255, 255, 255, 0.15);
+      --button-bg: #2575fc;
+      --button-hover: #6a11cb;
+    }
+
+    /* 🌙 Dark Mode */
+    body.dark-mode {
+      --bg-gradient: linear-gradient(135deg, #1f1c2c, #928dab);
+      --text-color: #f1f1f1;
+      --card-bg: #2a2a3c;
+      --nav-bg: rgba(0, 0, 0, 0.6);
+      --button-bg: #6a11cb;
+      --button-hover: #2575fc;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg-gradient);
+      margin: 0;
+      padding: 0;
+      color: var(--text-color);
+      transition: background 0.5s ease, color 0.5s ease;
+    }
+
+    /* 🌟 Navbar */
+    nav {
+      background: var(--nav-bg);
+      backdrop-filter: blur(12px);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #fff;
+      flex-wrap: wrap;
+      position: relative;
+    }
+
+    nav h1 { font-size: 1.8rem; margin: 0; }
+
+    nav .greeting {
+      font-size: 1rem;
+      font-weight: 500;
+      margin-left: 1rem;
+      color: #ffe082;
+    }
+
+    nav .menu-btn {
+      display: none;
+      font-size: 1.8rem;
+      background: none;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    nav .menu { display: flex; gap: 1rem; }
+
+    nav button {
+      padding: 0.5rem 1.2rem;
+      border: none;
+      border-radius: 8px;
+      background: var(--button-bg);
+      color: #fff;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    nav button:hover {
+      background: var(--button-hover);
+      transform: scale(1.05);
+    }
+
+    /* 🏗️ Layout */
+    main {
+      padding: 2rem;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+    }
+
+    section, aside, .page {
+      background: var(--card-bg);
+      padding: 1.5rem;
+      border-radius: 15px;
+      box-shadow: 0px 6px 20px rgba(0,0,0,0.1);
+      animation: fadeIn 0.6s ease-in-out;
+      transition: background 0.5s ease;
+    }
+
+    section h2, aside h2, .page h2 {
+      margin-bottom: 1rem;
+      color: var(--button-bg);
+    }
+
+    /* Events */
+    .event-list ul { list-style: none; padding: 0; }
+    .event-list li {
+      background: #f5f5f5;
+      margin-bottom: 0.8rem;
+      padding: 0.8rem;
+      border-radius: 8px;
+    }
+
+    .event-form input, .event-form textarea {
+      width: 100%;
+      padding: 0.8rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    .event-form button {
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 8px;
+      background: var(--button-bg);
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .event-form button:hover {
+      background: var(--button-hover);
+      transform: scale(1.05);
+    }
+
+    /* Extra Pages */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* 🔙 Back Button */
+    .back-btn {
+      margin-top: 1rem;
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 8px;
+      background: #333;
+      color: #fff;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .back-btn:hover { background: #555; transform: scale(1.05); }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 📱 Responsive */
+    @media (max-width: 1024px) { main { grid-template-columns: 1fr; } }
+    @media (max-width: 768px) {
+      nav .menu { display: none; flex-direction: column; background: rgba(0,0,0,0.9); position: absolute; top: 60px; right: 20px; padding: 1rem; border-radius: 10px; width: 200px; }
+      nav .menu.active { display: flex; }
+      nav .menu button { width: 100%; margin-bottom: 0.5rem; }
+      nav .menu-btn { display: block; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <h1>📋 Organizer Dashboard</h1>
+      <span class="greeting" id="greeting"></span>
+    </div>
+    <button class="menu-btn" onclick="toggleMenu()">☰</button>
+    <div class="menu">
+      <button onclick="openPage('profilePage')">👤 My Profile</button>
+      <button onclick="openPage('settingsPage')">⚙️ Settings</button>
+      <button onclick="logout()">🚪 Logout</button>
+    </div>
+  </nav>
+
+  <main>
+    <!-- Event Management -->
+    <section id="dashboardPage" class="page active">
+      <h2>Create New Event</h2>
+      <form class="event-form" onsubmit="createEvent(event)">
+        <input type="text" id="eventName" placeholder="Event Name" required>
+        <input type="date" id="eventDate" required>
+        <textarea id="eventDescription" placeholder="Event Description" rows="4" required></textarea>
+        <button type="submit">Add Event</button>
+      </form>
+    </section>
+
+    <!-- Created Events -->
+    <aside class="event-list" id="eventsListPage">
+      <h2>My Events</h2>
+      <ul id="organizerEvents"></ul>
+    </aside>
+
+    <!-- Profile Page -->
+    <section id="profilePage" class="page">
+      <h2>👤 My Profile</h2>
+      <p><strong>Name:</strong> <span id="profileName">-</span></p>
+      <p><strong>Email:</strong> <span id="profileEmail">-</span></p>
+      <p><strong>Role:</strong> <span id="profileRole">Organizer</span></p>
+      <button class="back-btn" onclick="openPage('dashboardPage')">🔙 Back</button>
+    </section>
+
+    <!-- Settings Page -->
+    <section id="settingsPage" class="page">
+      <h2>⚙️ Settings</h2>
+      <label>
+        <input type="checkbox" id="darkModeToggle"> 🌙 Enable Dark Mode
+      </label>
+      <br><br>
+      <label>
+        <input type="checkbox"> 📧 Receive Event Updates
+      </label>
+      <br><br>
+      <button class="back-btn" onclick="openPage('dashboardPage')">🔙 Back</button>
+    </section>
+  </main>
+
+  <script>
+    function logout() {
+      localStorage.removeItem("currentUser");
+      window.location.href = "login.html";
+    }
+
+    function toggleMenu() {
+      document.querySelector(".menu").classList.toggle("active");
+    }
+
+    function openPage(pageId) {
+      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+      document.getElementById(pageId).classList.add("active");
+      document.querySelector(".menu").classList.remove("active");
+    }
+
+    // ✅ Load everything when DOM is ready
+    window.onload = function() {
+      // Greeting + profile
+      const user = JSON.parse(localStorage.getItem("currentUser"));
+      if (user) {
+        document.getElementById("greeting").textContent =
+          `👋 Welcome back, ${user.username} (${user.role.charAt(0).toUpperCase() + user.role.slice(1)})`;
+
+        document.getElementById("profileName").textContent = user.username;
+        document.getElementById("profileEmail").textContent = user.username + "@events.com";
+        document.getElementById("profileRole").textContent = user.role;
+      }
+
+      loadEvents();
+
+      const darkModeToggle = document.getElementById("darkModeToggle");
+      if (localStorage.getItem("darkMode") === "enabled") {
+        document.body.classList.add("dark-mode");
+        darkModeToggle.checked = true;
+      }
+
+      darkModeToggle.addEventListener("change", () => {
+        if (darkModeToggle.checked) {
+          document.body.classList.add("dark-mode");
+          localStorage.setItem("darkMode", "enabled");
+        } else {
+          document.body.classList.remove("dark-mode");
+          localStorage.setItem("darkMode", "disabled");
+        }
+      });
+    };
+
+    // Create Event & Save
+    function createEvent(e) {
+      e.preventDefault();
+      const name = document.getElementById("eventName").value;
+      const date = document.getElementById("eventDate").value;
+      const desc = document.getElementById("eventDescription").value;
+
+      const newEvent = { name, date, desc };
+
+      // Save to localStorage
+      let events = JSON.parse(localStorage.getItem("events")) || [];
+      events.push(newEvent);
+      localStorage.setItem("events", JSON.stringify(events));
+
+      addEventToList(newEvent);
+      alert("✅ Event Created: " + name);
+
+      document.getElementById("eventName").value = "";
+      document.getElementById("eventDate").value = "";
+      document.getElementById("eventDescription").value = "";
+    }
+
+    // Display event on screen
+    function addEventToList(event) {
+      const list = document.getElementById("organizerEvents");
+      const li = document.createElement("li");
+      li.innerHTML = `<strong>${event.name}</strong> 📅 ${event.date}<br>${event.desc}`;
+      list.appendChild(li);
+    }
+
+    // Load events from localStorage
+    function loadEvents() {
+      let events = JSON.parse(localStorage.getItem("events")) || [];
+      events.forEach(event => addEventToList(event));
+    }
+  </script>
+</body>
+</html>
